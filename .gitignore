@@ -1,0 +1,5 @@
+storage/charts/*
+storage/logs/*
+storage/temp/*
+storage/csv/*
+*.pyc
