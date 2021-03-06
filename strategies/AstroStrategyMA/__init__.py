@@ -115,11 +115,11 @@ class AstroStrategyMA(Strategy):
         return price
 
     def take_profit_short(self, price=-1):
-        take_profit = self.position_price(price) - (self.daily_atr_average * 3)
+        take_profit = self.position_price(price) - (self.daily_atr_average * self.hp['take_profit_atr_rate'])
         return take_profit
 
     def take_profit_long(self, price=-1):
-        take_profit = self.position_price(price) + (self.daily_atr_average * 3)
+        take_profit = self.position_price(price) + (self.daily_atr_average * self.hp['take_profit_atr_rate'])
         return take_profit
 
     def is_bull_start(self):
@@ -192,11 +192,12 @@ class AstroStrategyMA(Strategy):
             {'name': 'entry_stop_atr_rate', 'type': float, 'min': 0.1, 'max': 1.0, 'default': 0.1},
             {'name': 'trailing_stop_atr_rate', 'type': float, 'min': 10, 'max': 20, 'default': 15},
             {'name': 'stop_loss_atr_rate', 'type': float, 'min': 1, 'max': 4, 'default': 2},
+            {'name': 'take_profit_atr_rate', 'type': int, 'min': 2, 'max': 10, 'default': 3},
             {'name': 'atr_period', 'type': int, 'min': 5, 'max': 40, 'default': 30},
             {'name': 'entry_atr_period', 'type': int, 'min': 5, 'max': 20, 'default': 15},
+            {'name': 'atr_take_profit_period', 'type': int, 'min': 7, 'max': 21, 'default': 10},
             {'name': 'fast_ma_period', 'type': int, 'min': 20, 'max': 40, 'default': 30},
             {'name': 'slow_ma_period', 'type': int, 'min': 40, 'max': 80, 'default': 60},
             {'name': 'max_day_attempts', 'type': int, 'min': 1, 'max': 3, 'default': 1},
-            {'name': 'atr_take_profit_period', 'type': int, 'min': 7, 'max': 21, 'default': 10},
             {'name': 'astro_signal_shift_hour', 'type': int, 'min': 0, 'max': 23, 'default': 8},
         ]
