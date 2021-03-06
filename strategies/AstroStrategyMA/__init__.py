@@ -21,13 +21,16 @@ class AstroStrategyMA(Strategy):
     def current_candle_hour(self) -> datetime:
         return datetime.fromtimestamp(self.candles[-1, 0] / 1000).hour
 
+    def load_astro_data(self):
+        here = Path(__file__).parent
+        # Dynamically determine the right csv from the self.symbol and shift the index 1 day.
+        symbol_parts = self.symbol.split("-")
+        astro_indicator_path = here / './ml-{}-USD-daily-index.csv'.format(symbol_parts[0])
+        self.vars['astro_data'] = pd.read_csv(astro_indicator_path, parse_dates=['Date'], index_col=0)
+
     def before(self):
         if self.index == 0:
-            here = Path(__file__).parent
-            # Dynamically determine the right csv from the self.symbol and shift the index 1 day.
-            symbol_parts = self.symbol.split("-")
-            astro_indicator_path = here / './ml-{}-USD-daily-index.csv'.format(symbol_parts[0])
-            self.vars['astro_data'] = pd.read_csv(astro_indicator_path, parse_dates=['Date'], index_col=0)
+            self.load_astro_data()
 
         # Filter past data.
         candle_date = self.current_candle_date()
