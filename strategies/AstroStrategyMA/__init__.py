@@ -178,7 +178,7 @@ class AstroStrategyMA(Strategy):
     def hyperparameters(self):
         return [
             {'name': 'entry_stop_atr_rate', 'type': float, 'min': 0.1, 'max': 1.0, 'default': 0.1},
-            {'name': 'trailing_stop_atr_rate', 'type': float, 'min': 10, 'max': 20, 'default': 10},
+            {'name': 'trailing_stop_atr_rate', 'type': float, 'min': 10, 'max': 20, 'default': 15},
             {'name': 'stop_loss_atr_rate', 'type': float, 'min': 1, 'max': 4, 'default': 2},
             {'name': 'atr_period', 'type': int, 'min': 5, 'max': 40, 'default': 30},
             {'name': 'entry_atr_period', 'type': int, 'min': 5, 'max': 20, 'default': 15},
