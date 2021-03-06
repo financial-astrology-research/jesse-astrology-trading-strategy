@@ -33,21 +33,33 @@ class AstroStrategyMA(Strategy):
         candle_date = self.current_candle_date()
         self.vars['astro_data'] = self.vars['astro_data'].loc[candle_date:]
 
-    def should_long(self) -> bool:
-        entry_decision = self.astro_signal == "buy" and self.is_bull_start()
+    def increase_entry_attempt(self):
         candle_date = str(datetime.fromtimestamp(self.current_candle[0] / 1000).date())
-
         # Init date attempts counter.
         if candle_date not in self.vars['attempts']:
             self.vars['attempts'][candle_date] = 0
 
-        # Limit to N entry attempt per day.
-        if self.vars['attempts'][candle_date] >= self.hp['max_day_attempts']:
+        # Count the entry attempt.
+        self.vars['attempts'][candle_date] += 1
+
+    def are_attempts_exceeded(self) -> bool:
+        candle_date = str(datetime.fromtimestamp(self.current_candle[0] / 1000).date())
+
+        if candle_date not in self.vars['attempts']:
             return False
 
-        # Count the entry attempt.
+        # Limit to N entry attempt per day.
+        if self.vars['attempts'][candle_date] >= self.hp['max_day_attempts']:
+            return True
+
+    def should_long(self) -> bool:
+        entry_decision = self.astro_signal == "buy" and self.is_bull_start()
+
+        if self.are_attempts_exceeded():
+            return False
+
         if entry_decision:
-            self.vars['attempts'][candle_date] += 1
+            self.increase_entry_attempt()
 
         return entry_decision
 
