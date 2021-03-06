@@ -53,17 +53,17 @@ class AstroStrategyMA(Strategy):
             return True
 
     def should_long(self) -> bool:
-        entry_decision = self.astro_signal == "buy" and self.is_bull_start()
-
-        if self.are_attempts_exceeded():
-            return False
-
-        if entry_decision:
+        if self.astro_signal == "buy" and self.is_bull_start() and not self.are_attempts_exceeded():
             self.increase_entry_attempt()
+            return True
 
-        return entry_decision
+        return False
 
     def should_short(self) -> bool:
+        if self.astro_signal == "sell" and self.is_bear_start() and not self.are_attempts_exceeded():
+            self.increase_entry_attempt()
+            return True
+
         return False
 
     def filters(self):
