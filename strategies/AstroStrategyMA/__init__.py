@@ -15,22 +15,23 @@ class AstroStrategyMA(Strategy):
         super().__init__()
         self.vars['attempts'] = {}
 
+    def current_candle_date(self) -> datetime:
+        return datetime.fromtimestamp(self.candles[-1, 0] / 1000).replace(hour=0, minute=0, second=0, microsecond=0)
+
+    def current_candle_hour(self) -> datetime:
+        return datetime.fromtimestamp(self.candles[-1, 0] / 1000).hour
+
     def before(self):
         if self.index == 0:
             here = Path(__file__).parent
             # Dynamically determine the right csv from the self.symbol and shift the index 1 day.
             symbol_parts = self.symbol.split("-")
             astro_indicator_path = here / './ml-{}-USD-daily-index.csv'.format(symbol_parts[0])
-            df_astro = pd.read_csv(astro_indicator_path, parse_dates=['Date'], index_col=0).tshift(periods=1, freq='D')
-            # Slice not needed data
-            now = datetime.fromtimestamp(self.candles[-1, 0] / 1000).replace(hour=0, minute=0, second=0, microsecond=0)
-            df_astro = df_astro.loc[now:]
-            # Dynamically determine the timeframe we need to resample those data to.
-            self.vars['raw_astro_data'] = df_astro.resample(
-                self.timeframe.replace("m", "T").replace("h", "H")
-            ).fillna("pad")
-            candle_timestamps = pd.DataFrame(index=pd.to_datetime(self.candles[-50:, 0], unit='ms'))
-            self.vars['astro_data'] = candle_timestamps.merge(self.vars['raw_astro_data'], how='left', left_index=True, right_index=True)
+            self.vars['astro_data'] = pd.read_csv(astro_indicator_path, parse_dates=['Date'], index_col=0)
+
+        # Filter past data.
+        candle_date = self.current_candle_date()
+        self.vars['astro_data'] = self.vars['astro_data'].loc[candle_date:]
 
     def should_long(self) -> bool:
         entry_decision = self.astro_signal == "buy" and self.is_bull_start()
@@ -170,11 +171,17 @@ class AstroStrategyMA(Strategy):
 
     @property
     def astro_signal(self):
-        return self.vars['astro_data']['Action'].iloc[-1]
+        candle_hour = self.current_candle_hour()
+        # Use next day signal after 10 hours due the fact that astro models are train with
+        # mid price (OHLC / 4) so the price action predicted by next day could start at noon.
+        signal_index = 0
+        if candle_hour >= self.hp['astro_signal_shift_hour']:
+            signal_index = 1
+        signal = self.vars['astro_data'].iloc[signal_index]
+        return signal['Action']
 
     def position_size(self, entry, stop):
         max_qty = utils.size_to_qty(0.25 * self.capital, entry, precision=6, fee_rate=self.fee_rate)
-
         return max_qty
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -191,4 +198,5 @@ class AstroStrategyMA(Strategy):
             {'name': 'slow_ma_period', 'type': int, 'min': 40, 'max': 80, 'default': 60},
             {'name': 'max_day_attempts', 'type': int, 'min': 1, 'max': 3, 'default': 1},
             {'name': 'atr_take_profit_period', 'type': int, 'min': 7, 'max': 21, 'default': 10},
+            {'name': 'astro_signal_shift_hour', 'type': int, 'min': 0, 'max': 23, 'default': 16},
         ]
