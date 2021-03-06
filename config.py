@@ -69,7 +69,16 @@ config = {
             # used for spot exchange only
             'assets': [
                 {'asset': 'USDT', 'balance': 10_000},
+                {'asset': 'ADA', 'balance': 0},
+                {'asset': 'BAT', 'balance': 0},
+                {'asset': 'BNB', 'balance': 0},
                 {'asset': 'BTC', 'balance': 0},
+                {'asset': 'DASH', 'balance': 0},
+                {'asset': 'EOS', 'balance': 0},
+                {'asset': 'LINK', 'balance': 0},
+                {'asset': 'LTC', 'balance': 0},
+                {'asset': 'ZEC', 'balance': 0},
+                {'asset': 'ZRX', 'balance': 0},
             ],
         },
 
