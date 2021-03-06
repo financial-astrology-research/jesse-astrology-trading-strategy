@@ -174,11 +174,23 @@ class AstroStrategyMA(Strategy):
         candle_hour = self.current_candle_hour()
         # Use next day signal after 10 hours due the fact that astro models are train with
         # mid price (OHLC / 4) so the price action predicted by next day could start at noon.
-        signal_index = 0
+        signal_start_index = 0
         if candle_hour >= self.hp['astro_signal_shift_hour']:
-            signal_index = 1
-        signal = self.vars['astro_data'].iloc[signal_index]
-        return signal['Action']
+            signal_start_index = 1
+
+        # Select next N signals in order to determine that there is astro energy trend.
+        signal_end_index = signal_start_index + 1
+        signals = self.vars['astro_data'].iloc[signal_start_index:signal_end_index]
+        count_signals = len(signals)
+        buy_signals = signals[signals['Action'] == 'buy']
+        sell_signals = signals[signals['Action'] == 'sell']
+
+        if (count_signals == len(buy_signals)):
+            return 'buy'
+        elif (count_signals == len(sell_signals)):
+            return 'sell'
+
+        return 'neutral'
 
     def position_size(self, entry, stop):
         max_qty = utils.size_to_qty(0.25 * self.capital, entry, precision=6, fee_rate=self.fee_rate)
