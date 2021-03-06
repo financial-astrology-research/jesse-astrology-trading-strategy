@@ -191,7 +191,7 @@ class AstroStrategyMA(Strategy):
             signal_start_index = 1
 
         # Select next N signals in order to determine that there is astro energy trend.
-        signal_end_index = signal_start_index + 1
+        signal_end_index = signal_start_index + self.hp['astro_signal_trend_period']
         signals = self.vars['astro_data'].iloc[signal_start_index:signal_end_index]
         count_signals = len(signals)
         buy_signals = signals[signals['Action'] == 'buy']
@@ -223,5 +223,6 @@ class AstroStrategyMA(Strategy):
             {'name': 'fast_ma_period', 'type': int, 'min': 20, 'max': 40, 'default': 30},
             {'name': 'slow_ma_period', 'type': int, 'min': 40, 'max': 80, 'default': 60},
             {'name': 'max_day_attempts', 'type': int, 'min': 1, 'max': 3, 'default': 1},
-            {'name': 'astro_signal_shift_hour', 'type': int, 'min': 0, 'max': 23, 'default': 8},
+            {'name': 'astro_signal_trend_period', 'type': int, 'min': 1, 'max': 5, 'default': 2},
+            {'name': 'astro_signal_shift_hour', 'type': int, 'min': 0, 'max': 23, 'default': 9},
         ]
