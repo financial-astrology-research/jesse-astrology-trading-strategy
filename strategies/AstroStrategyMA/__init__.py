@@ -72,8 +72,28 @@ class AstroStrategyMA(Strategy):
         return False
 
     def update_position(self):
+        self.exit_on_reversal()
+        self.update_trailing_stop()
+
+    def exit_on_reversal(self):
         if (self.is_long and self.is_bear_start()) or (self.is_short and self.is_bull_start()):
             self.liquidate()
+
+    # Move the SL following the trend.
+    def update_trailing_stop(self):
+        if self.position.pnl <= 0:
+            return
+
+        # Only move it if we are still in a trend
+        if (self.is_long and self.price > self.fast_ma[-1]):
+            stop = self.price - self.atr * self.hp['trailing_stop_atr_rate']
+            if stop < self.price:
+                self.stop_loss = self.position.qty, stop
+
+        if (self.is_short and self.price < self.fast_ma[-1]):
+            stop = self.price + self.atr * self.hp['trailing_stop_atr_rate']
+            if stop > self.price:
+                self.stop_loss = self.position.qty, stop
 
     ################################################################
     # # # # # # # # # # # # # indicators # # # # # # # # # # # # # #
@@ -82,7 +102,6 @@ class AstroStrategyMA(Strategy):
     def position_price(self, price = -1):
         if price == -1:
             price = self.price
-
         return price
 
     def take_profit_short(self, price=-1):
@@ -92,6 +111,14 @@ class AstroStrategyMA(Strategy):
     def take_profit_long(self, price=-1):
         take_profit = self.position_price(price) + (self.daily_atr_average * 2)
         return take_profit
+
+    def is_bull_start(self):
+        result = utils.crossed(self.fast_ma, self.slow_ma, "above")
+        return result
+
+    def is_bear_start(self):
+        result = utils.crossed(self.fast_ma, self.slow_ma, "below")
+        return result
 
     @property
     def atr(self):
@@ -104,8 +131,15 @@ class AstroStrategyMA(Strategy):
     @property
     def stop_loss_long(self):
         exit = self.price - self.atr * self.hp['stop_loss_atr_rate']
-        if exit <= self.vars['entry']:
+        if exit >= self.vars['entry']:
             exit = self.vars['entry'] * 0.98
+        return exit
+
+    @property
+    def stop_loss_short(self):
+        exit = self.price + self.atr * self.hp['stop_loss_atr_rate']
+        if exit <= self.vars['entry']:
+            exit = self.vars['entry'] * 1.02
         return exit
 
     @property
@@ -118,23 +152,12 @@ class AstroStrategyMA(Strategy):
         return daily_atr
 
     @property
-    def stop_loss_short(self):
-        exit = self.price + self.atr * self.hp['stop_loss_atr_rate']
-        if exit <= self.vars['entry']:
-            exit = self.vars['entry'] * 1.02
-        return exit
+    def fast_ma(self):
+        return ta.sma(self.candles, self.hp['fast_ma_period'], "close", True)
 
-    def is_bull_start(self):
-        fast_ma = ta.sma(self.candles, self.hp['fast_ma_period'], "close", True)
-        slow_ma = ta.sma(self.candles, self.hp['slow_ma_period'], "close", True)
-        result = utils.crossed(fast_ma, slow_ma, "above")
-        return result
-
-    def is_bear_start(self):
-        fast_ma = ta.sma(self.candles, self.hp['fast_ma_period'], "close", True)
-        slow_ma = ta.sma(self.candles, self.hp['slow_ma_period'], "close", True)
-        result = utils.crossed(fast_ma, slow_ma, "below")
-        return result
+    @property
+    def slow_ma(self):
+        return ta.sma(self.candles, self.hp['slow_ma_period'], "close", True)
 
     @property
     def astro_signal(self):
@@ -155,10 +178,10 @@ class AstroStrategyMA(Strategy):
     def hyperparameters(self):
         return [
             {'name': 'entry_stop_atr_rate', 'type': float, 'min': 0.1, 'max': 1.0, 'default': 0.1},
+            {'name': 'trailing_stop_atr_rate', 'type': float, 'min': 10, 'max': 20, 'default': 10},
             {'name': 'stop_loss_atr_rate', 'type': float, 'min': 1, 'max': 4, 'default': 2},
-            {'name': 'take_profit', 'type': int, 'min': 1, 'max': 20, 'default': 5},
             {'name': 'atr_period', 'type': int, 'min': 5, 'max': 40, 'default': 30},
-            {'name': 'entry_atr_period', 'type': int, 'min': 5, 'max': 40, 'default': 15},
+            {'name': 'entry_atr_period', 'type': int, 'min': 5, 'max': 20, 'default': 15},
             {'name': 'fast_ma_period', 'type': int, 'min': 20, 'max': 40, 'default': 30},
             {'name': 'slow_ma_period', 'type': int, 'min': 40, 'max': 80, 'default': 60},
             {'name': 'max_day_attempts', 'type': int, 'min': 1, 'max': 3, 'default': 1},
