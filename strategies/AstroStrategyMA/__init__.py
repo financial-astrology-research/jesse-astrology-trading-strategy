@@ -4,6 +4,7 @@ from pprint import pprint
 
 import jesse.indicators as ta
 import numpy as np
+import pandas as pd
 from jesse import utils
 from jesse.strategies import Strategy
 
@@ -12,16 +13,24 @@ class AstroStrategyMA(Strategy):
 
     def __init__(self):
         super().__init__()
-
-        here = Path(__file__).parent
-
-        self.vars['astro_data'] = np.genfromtxt(here / './ml-BTC-USD-daily-index.csv', dtype=None, delimiter=",",
-                                                names=True,
-                                                encoding='UTF-8',
-                                                converters={0: lambda s: datetime.strptime(s, "%Y-%m-%d")})
-
         self.vars['attempts'] = {}
-        # print(self.vars['astro_data'])
+
+    def before(self):
+        if self.index == 0:
+            here = Path(__file__).parent
+            # Dynamically determine the right csv from the self.symbol and shift the index 1 day.
+            symbol_parts = self.symbol.split("-")
+            astro_indicator_path = here / './ml-{}-USD-daily-index.csv'.format(symbol_parts[0])
+            df_astro = pd.read_csv(astro_indicator_path, parse_dates=['Date'], index_col=0).tshift(periods=1, freq='D')
+            # Slice not needed data
+            now = datetime.fromtimestamp(self.candles[-1, 0] / 1000).replace(hour=0, minute=0, second=0, microsecond=0)
+            df_astro = df_astro.loc[now:]
+            # Dynamically determine the timeframe we need to resample those data to.
+            self.vars['raw_astro_data'] = df_astro.resample(
+                self.timeframe.replace("m", "T").replace("h", "H")
+            ).fillna("pad")
+            candle_timestamps = pd.DataFrame(index=pd.to_datetime(self.candles[-50:, 0], unit='ms'))
+            self.vars['astro_data'] = candle_timestamps.merge(self.vars['raw_astro_data'], how='left', left_index=True, right_index=True)
 
     def should_long(self) -> bool:
         entry_decision = self.astro_signal == "buy" and self.is_bull_start()
@@ -161,11 +170,7 @@ class AstroStrategyMA(Strategy):
 
     @property
     def astro_signal(self):
-        now = datetime.fromtimestamp(self.candles[-1, 0] / 1000).replace(hour=0, minute=0, second=0, microsecond=0)
-        # print(now)
-        signal_idx = np.where(self.vars['astro_data']['Date'] == now)[0] + 1
-        # print(self.vars['astro_data']['Date'][signal_idx])
-        return self.vars['astro_data']['Action'][signal_idx]
+        return self.vars['astro_data']['Action'].iloc[-1]
 
     def position_size(self, entry, stop):
         max_qty = utils.size_to_qty(0.25 * self.capital, entry, precision=6, fee_rate=self.fee_rate)
