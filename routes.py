@@ -12,5 +12,5 @@ routes = [
 
 # in case your strategy requires extra candles, timeframes, ...
 extra_candles = [
-    # ('Binance', 'BTC-USDT', anchor_timeframe('4h')),
+    ('Binance', 'BTC-USDT', anchor_timeframe('4h')),
 ]

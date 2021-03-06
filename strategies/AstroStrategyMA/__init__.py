@@ -79,16 +79,18 @@ class AstroStrategyMA(Strategy):
     # # # # # # # # # # # # # indicators # # # # # # # # # # # # # #
     ################################################################
 
-    def take_profit_short(self, price=-1):
+    def position_price(self, price = -1):
         if price == -1:
             price = self.price
-        take_profit = price * 0.9
+
+        return price
+
+    def take_profit_short(self, price=-1):
+        take_profit = self.position_price(price) - (self.daily_atr_average * 2)
         return take_profit
 
     def take_profit_long(self, price=-1):
-        if price == -1:
-            price = self.price
-        take_profit = price * 1.1
+        take_profit = self.position_price(price) + (self.daily_atr_average * 2)
         return take_profit
 
     @property
@@ -105,6 +107,15 @@ class AstroStrategyMA(Strategy):
         if exit <= self.vars['entry']:
             exit = self.vars['entry'] * 0.98
         return exit
+
+    @property
+    def daily_candles(self):
+        return self.get_candles(self.exchange, self.symbol, '1D')
+
+    @property
+    def daily_atr_average(self):
+        daily_atr = ta.atr(self.daily_candles, self.hp['atr_take_profit_period'])
+        return daily_atr
 
     @property
     def stop_loss_short(self):
@@ -151,4 +162,5 @@ class AstroStrategyMA(Strategy):
             {'name': 'fast_ma_period', 'type': int, 'min': 20, 'max': 40, 'default': 30},
             {'name': 'slow_ma_period', 'type': int, 'min': 40, 'max': 80, 'default': 60},
             {'name': 'max_day_attempts', 'type': int, 'min': 1, 'max': 3, 'default': 1},
+            {'name': 'atr_take_profit_period', 'type': int, 'min': 7, 'max': 21, 'default': 10},
         ]
