@@ -208,7 +208,7 @@ class AstroStrategyMA(Strategy):
         return 'neutral'
 
     def position_size(self, entry, stop):
-        max_qty = utils.size_to_qty(0.25 * self.capital, entry, precision=6, fee_rate=self.fee_rate)
+        max_qty = utils.size_to_qty(self.capital / self.hp['capital_slices'], entry, precision=6, fee_rate=self.fee_rate)
         return max_qty
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -228,4 +228,5 @@ class AstroStrategyMA(Strategy):
             {'name': 'max_day_attempts', 'type': int, 'min': 1, 'max': 3, 'default': 1},
             {'name': 'astro_signal_trend_period', 'type': int, 'min': 1, 'max': 5, 'default': 2},
             {'name': 'astro_signal_shift_hour', 'type': int, 'min': 0, 'max': 23, 'default': 9},
+            {'name': 'capital_slices', 'type': int, 'min': 2, 'max': 20, 'default': 10},
         ]
