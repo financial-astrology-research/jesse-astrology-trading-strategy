@@ -29,6 +29,8 @@ class AstroStrategyMA(Strategy):
         self.vars['astro_asset'] = pd.read_csv(astro_asset_indicator_path, parse_dates=['Date'], index_col=0)
         astro_sector_indicator_path = here / './ml-all-daily-index.csv'
         self.vars['astro_sector'] = pd.read_csv(astro_sector_indicator_path, parse_dates=['Date'], index_col=0)
+        moon_phase_indicator_path = here / './daily_moon_phase_positions.csv'
+        self.vars['astro_moon_phase'] = pd.read_csv(moon_phase_indicator_path, parse_dates=['Date'], index_col=0)
 
     def before(self):
         if self.index == 0:
@@ -38,6 +40,7 @@ class AstroStrategyMA(Strategy):
         candle_date = self.current_candle_date()
         self.vars['astro_asset'] = self.vars['astro_asset'].loc[candle_date:]
         self.vars['astro_sector'] = self.vars['astro_sector'].loc[candle_date:]
+        self.vars['astro_moon_phase'] = self.vars['astro_moon_phase'].loc[candle_date:]
 
     def increase_entry_attempt(self):
         candle_date = str(datetime.fromtimestamp(self.current_candle[0] / 1000).date())
@@ -224,13 +227,37 @@ class AstroStrategyMA(Strategy):
     def astro_asset_signal(self):
         return self.astro_signal_period_decision(self.vars['astro_asset'])
 
+    def moon_phase(self):
+        index = self.astro_indicator_day_index()
+        signal = self.vars['astro_moon_phase'].iloc[index]
+        return signal['MoonPhaseID']
+
+    def moon_phase_zodsign(self):
+        index = self.astro_indicator_day_index()
+        signal = self.vars['astro_moon_phase'].iloc[index]
+        return signal['ZodSignID']
+
+    def is_air_zodsign(self, zodsign):
+        return zodsign in ["GEM", "LIB", "AQU"]
+
+    def is_fire_zodsign(self, zodsign):
+        return zodsign in ["ARI", "LEO", "SAG"]
+
+    def is_water_zodsign(self, zodsign):
+        return zodsign in ["CAN", "SCO", "PIS"]
+
+    def is_earth_zodsign(self, zodsign):
+        return zodsign in ["TAU", "VIR", "CAP"]
+
     @property
     def is_bull_astro_signal(self) -> bool:
-        return self.astro_asset_signal() == "buy"
+        phase_zodsign = self.moon_phase_zodsign()
+        return (self.is_air_zodsign(phase_zodsign) or self.is_fire_zodsign(phase_zodsign)) and self.astro_asset_signal() == "buy"
 
     @property
     def is_bear_astro_signal(self) -> bool:
-        return self.astro_asset_signal() == "sell"
+        phase_zodsign = self.moon_phase_zodsign()
+        return (self.is_earth_zodsign(phase_zodsign) or self.is_water_zodsign(phase_zodsign)) and self.astro_asset_signal() == "sell"
 
     def position_size(self, entry, stop):
         max_qty = utils.size_to_qty(self.capital / self.hp['capital_slices'], entry, precision=6, fee_rate=self.fee_rate)
