@@ -24,7 +24,7 @@ class AstroStrategyMA(Strategy):
     def load_astro_data(self):
         here = Path(__file__).parent
         # Dynamically determine the right csv from the self.symbol and shift the index 1 day.
-        symbol_parts = self.symbol.split("-")
+        symbol_parts = self.symbol.split('-')
         astro_asset_indicator_path = here / './ml-{}-USD-daily-index.csv'.format(symbol_parts[0])
         self.vars['astro_asset'] = pd.read_csv(astro_asset_indicator_path, parse_dates=['Date'], index_col=0)
         astro_sector_indicator_path = here / './ml-all-daily-index.csv'
@@ -150,12 +150,12 @@ class AstroStrategyMA(Strategy):
 
     @property
     def is_bull_trend_start(self) -> bool:
-        result = utils.crossed(self.fast_ma, self.slow_ma, "above")
+        result = utils.crossed(self.fast_ma, self.slow_ma, 'above')
         return result
 
     @property
     def is_bear_trend_start(self) -> bool:
-        result = utils.crossed(self.fast_ma, self.slow_ma, "below")
+        result = utils.crossed(self.fast_ma, self.slow_ma, 'below')
         return result
 
     @property
@@ -191,11 +191,11 @@ class AstroStrategyMA(Strategy):
 
     @property
     def fast_ma(self):
-        return ta.sma(self.candles, self.hp['fast_ma_period'], "close", True)
+        return ta.sma(self.candles, self.hp['fast_ma_period'], 'close', True)
 
     @property
     def slow_ma(self):
-        return ta.sma(self.candles, self.hp['slow_ma_period'], "close", True)
+        return ta.sma(self.candles, self.hp['slow_ma_period'], 'close', True)
 
     def astro_indicator_day_index(self):
         candle_hour = self.current_candle_hour()
@@ -220,7 +220,7 @@ class AstroStrategyMA(Strategy):
         elif (count_signals == len(sell_signals)):
             return 'sell'
 
-        return "neutral"
+        return 'neutral'
 
     # The astro sector signal don't reduce the astro ML asset signal errors, not used.
     def astro_sector_signal(self):
@@ -244,16 +244,16 @@ class AstroStrategyMA(Strategy):
         return signal['ZodSignID']
 
     def is_air_zodsign(self, zodsign):
-        return zodsign in ["GEM", "LIB", "AQU"]
+        return zodsign in ['GEM', 'LIB', 'AQU']
 
     def is_fire_zodsign(self, zodsign):
-        return zodsign in ["ARI", "LEO", "SAG"]
+        return zodsign in ['ARI', 'LEO', 'SAG']
 
     def is_water_zodsign(self, zodsign):
-        return zodsign in ["CAN", "SCO", "PIS"]
+        return zodsign in ['CAN', 'SCO', 'PIS']
 
     def is_earth_zodsign(self, zodsign):
-        return zodsign in ["TAU", "VIR", "CAP"]
+        return zodsign in ['TAU', 'VIR', 'CAP']
 
     def is_bull_moon_phase_zodsign(self):
         phase_zodsign = self.moon_phase_zodsign()
@@ -278,11 +278,11 @@ class AstroStrategyMA(Strategy):
 
     @property
     def is_bull_astro_signal(self) -> bool:
-        return self.is_bull_moon_zodsign() and self.astro_asset_signal() == "buy"
+        return self.is_bull_moon_zodsign() and self.astro_asset_signal() == 'buy'
 
     @property
     def is_bear_astro_signal(self) -> bool:
-        return self.is_bear_moon_zodsign() and self.astro_asset_signal() == "sell"
+        return self.is_bear_moon_zodsign() and self.astro_asset_signal() == 'sell'
 
     def position_size(self, entry, stop):
         max_qty = utils.size_to_qty(self.capital / self.hp['capital_slices'], entry, precision=6, fee_rate=self.fee_rate)
