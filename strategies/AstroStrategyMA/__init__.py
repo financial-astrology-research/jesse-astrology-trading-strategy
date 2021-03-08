@@ -264,15 +264,13 @@ class AstroStrategyMA(Strategy):
     def is_bull_moon_zodsign(self):
         if (self.hp['enable_moon_zodsign_filter']):
             moon_zodsign = self.moon_zodsign()
-            return self.is_air_zodsign(moon_zodsign) \
-                or self.is_water_zodsign(moon_zodsign)
+            return self.is_air_zodsign(moon_zodsign) or self.is_water_zodsign(moon_zodsign)
         return True
 
     def is_bear_moon_zodsign(self):
         if (self.hp['enable_moon_zodsign_filter']):
             moon_zodsign = self.moon_zodsign()
-            return self.is_earth_zodsign(moon_zodsign) \
-                or self.is_fire_zodsign(moon_zodsign)
+            return self.is_earth_zodsign(moon_zodsign) or self.is_fire_zodsign(moon_zodsign)
         return True
 
     @property
