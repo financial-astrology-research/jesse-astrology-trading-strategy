@@ -304,5 +304,5 @@ class AstroStrategyMA(Strategy):
             {'name': 'astro_signal_trend_period', 'type': int, 'min': 1, 'max': 5, 'default': 2},
             {'name': 'astro_signal_shift_hour', 'type': int, 'min': 0, 'max': 23, 'default': 9},
             {'name': 'capital_slices', 'type': int, 'min': 2, 'max': 20, 'default': 20},
-            {'name': 'enable_moon_zodsign_filter', 'type': bool, 'default': True},
+            {'name': 'enable_moon_zodsign_filter', 'type': bool, 'default': False},
         ]
