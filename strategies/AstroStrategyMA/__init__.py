@@ -278,7 +278,7 @@ class AstroStrategyMA(Strategy):
         return self.is_bear_moon_zodsign() and self.astro_asset_signal() == 'sell'
 
     def position_size(self, entry, stop):
-        max_qty = utils.size_to_qty(self.capital / self.hp['capital_slices'], entry, precision=6,
+        max_qty = utils.size_to_qty(self.available_margin / self.hp['capital_slices'], entry, precision=6,
                                     fee_rate=self.fee_rate)
         return max_qty
 
