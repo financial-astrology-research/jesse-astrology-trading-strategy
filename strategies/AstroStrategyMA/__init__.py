@@ -255,7 +255,7 @@ class AstroStrategyMA(Strategy):
     def is_earth_zodsign(self, zodsign):
         return zodsign in ["TAU", "VIR", "CAP"]
 
-    def is_moon_phase_strong_zodsign(self):
+    def is_bull_moon_phase_zodsign(self):
         phase_zodsign = self.moon_phase_zodsign()
         return self.is_air_zodsign(phase_zodsign) \
             or self.is_earth_zodsign(phase_zodsign) \
@@ -266,23 +266,23 @@ class AstroStrategyMA(Strategy):
         signal = self.vars['moon_position'].iloc[index]
         return signal['ZodSignID']
 
-    def is_moon_strong_zodsign(self):
+    def is_bull_moon_zodsign(self):
         moon_zodsign = self.moon_zodsign()
         return self.is_air_zodsign(moon_zodsign) \
             or self.is_water_zodsign(moon_zodsign) \
 
-    def is_moon_weak_zodsign(self):
+    def is_bear_moon_zodsign(self):
         moon_zodsign = self.moon_zodsign()
         return self.is_earth_zodsign(moon_zodsign) \
             or self.is_fire_zodsign(moon_zodsign)
 
     @property
     def is_bull_astro_signal(self) -> bool:
-        return self.is_moon_strong_zodsign() and self.astro_asset_signal() == "buy"
+        return self.is_bull_moon_zodsign() and self.astro_asset_signal() == "buy"
 
     @property
     def is_bear_astro_signal(self) -> bool:
-        return self.is_moon_weak_zodsign() and self.astro_asset_signal() == "sell"
+        return self.is_bear_moon_zodsign() and self.astro_asset_signal() == "sell"
 
     def position_size(self, entry, stop):
         max_qty = utils.size_to_qty(self.capital / self.hp['capital_slices'], entry, precision=6, fee_rate=self.fee_rate)
