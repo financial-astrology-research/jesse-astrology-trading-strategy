@@ -25,8 +25,10 @@ class AstroStrategyMA(Strategy):
         here = Path(__file__).parent
         # Dynamically determine the right csv from the self.symbol and shift the index 1 day.
         symbol_parts = self.symbol.split("-")
-        astro_indicator_path = here / './ml-{}-USD-daily-index.csv'.format(symbol_parts[0])
-        self.vars['astro_data'] = pd.read_csv(astro_indicator_path, parse_dates=['Date'], index_col=0)
+        astro_asset_indicator_path = here / './ml-{}-USD-daily-index.csv'.format(symbol_parts[0])
+        self.vars['astro_asset'] = pd.read_csv(astro_asset_indicator_path, parse_dates=['Date'], index_col=0)
+        astro_sector_indicator_path = here / './ml-all-daily-index.csv'
+        self.vars['astro_sector'] = pd.read_csv(astro_sector_indicator_path, parse_dates=['Date'], index_col=0)
 
     def before(self):
         if self.index == 0:
@@ -34,7 +36,8 @@ class AstroStrategyMA(Strategy):
 
         # Filter past data.
         candle_date = self.current_candle_date()
-        self.vars['astro_data'] = self.vars['astro_data'].loc[candle_date:]
+        self.vars['astro_asset'] = self.vars['astro_asset'].loc[candle_date:]
+        self.vars['astro_sector'] = self.vars['astro_sector'].loc[candle_date:]
 
     def increase_entry_attempt(self):
         candle_date = str(datetime.fromtimestamp(self.current_candle[0] / 1000).date())
@@ -45,6 +48,7 @@ class AstroStrategyMA(Strategy):
         # Count the entry attempt.
         self.vars['attempts'][candle_date] += 1
 
+    @property
     def are_attempts_exceeded(self) -> bool:
         candle_date = str(datetime.fromtimestamp(self.current_candle[0] / 1000).date())
 
@@ -56,14 +60,14 @@ class AstroStrategyMA(Strategy):
             return True
 
     def should_long(self) -> bool:
-        if self.astro_signal == "buy" and self.is_bull_start() and not self.are_attempts_exceeded():
+        if self.is_bull_astro_signal and self.is_bull_trend_start and not self.are_attempts_exceeded:
             self.increase_entry_attempt()
             return True
 
         return False
 
     def should_short(self) -> bool:
-        if self.astro_signal == "sell" and self.is_bear_start() and not self.are_attempts_exceeded():
+        if self.is_bear_astro_signal and self.is_bear_trend_start and not self.are_attempts_exceeded:
             self.increase_entry_attempt()
             return True
 
@@ -101,7 +105,7 @@ class AstroStrategyMA(Strategy):
         self.update_trailing_stop()
 
     def exit_on_reversal(self):
-        if (self.is_long and self.is_bear_start()) or (self.is_short and self.is_bull_start()):
+        if (self.is_long and self.is_bear_trend_start()) or (self.is_short and self.is_bull_trend_start()):
             self.liquidate()
 
     # Move the SL following the trend.
@@ -137,11 +141,11 @@ class AstroStrategyMA(Strategy):
         take_profit = self.position_price(price) + (self.daily_atr_average * self.hp['take_profit_atr_rate'])
         return take_profit
 
-    def is_bull_start(self):
+    def is_bull_trend_start(self):
         result = utils.crossed(self.fast_ma, self.slow_ma, "above")
         return result
 
-    def is_bear_start(self):
+    def is_bear_trend_start(self):
         result = utils.crossed(self.fast_ma, self.slow_ma, "below")
         return result
 
@@ -184,18 +188,20 @@ class AstroStrategyMA(Strategy):
     def slow_ma(self):
         return ta.sma(self.candles, self.hp['slow_ma_period'], "close", True)
 
-    @property
-    def astro_signal(self):
+    def astro_indicator_day_index(self):
         candle_hour = self.current_candle_hour()
         # Use next day signal after 10 hours due the fact that astro models are train with
         # mid price (OHLC / 4) so the price action predicted by next day could start at noon.
-        signal_start_index = 0
+        day_index = 0
         if candle_hour >= self.hp['astro_signal_shift_hour']:
-            signal_start_index = 1
+            day_index = 1
+        return day_index
 
+    def astro_asset_signal(self):
+        start_index = self.astro_indicator_day_index()
         # Select next N signals in order to determine that there is astro energy trend.
-        signal_end_index = signal_start_index + self.hp['astro_signal_trend_period']
-        signals = self.vars['astro_data'].iloc[signal_start_index:signal_end_index]
+        end_index = start_index + self.hp['astro_signal_trend_period']
+        signals = self.vars['astro_asset'].iloc[start_index:end_index]
         count_signals = len(signals)
         buy_signals = signals[signals['Action'] == 'buy']
         sell_signals = signals[signals['Action'] == 'sell']
@@ -206,6 +212,19 @@ class AstroStrategyMA(Strategy):
             return 'sell'
 
         return 'neutral'
+
+    def astro_sector_signal(self):
+        index = self.astro_indicator_day_index()
+        signal = self.vars['astro_sector'].iloc[index]
+        return signal['Action']
+
+    @property
+    def is_bull_astro_signal(self) -> bool:
+        return self.astro_sector_signal() == "buy" and self.astro_asset_signal() == "buy"
+
+    @property
+    def is_bear_astro_signal(self) -> bool:
+        return self.astro_sector_signal() == "sell" and self.astro_asset_signal() == "sell"
 
     def position_size(self, entry, stop):
         max_qty = utils.size_to_qty(self.capital / self.hp['capital_slices'], entry, precision=6, fee_rate=self.fee_rate)
