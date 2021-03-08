@@ -262,12 +262,18 @@ class AstroStrategyMA(Strategy):
         return signal['ZodSignID']
 
     def is_bull_moon_zodsign(self):
-        moon_zodsign = self.moon_zodsign()
-        return self.is_air_zodsign(moon_zodsign)or self.is_water_zodsign(moon_zodsign)
+        if (self.hp['enable_moon_zodsign_filter']):
+            moon_zodsign = self.moon_zodsign()
+            return self.is_air_zodsign(moon_zodsign) \
+                or self.is_water_zodsign(moon_zodsign)
+        return True
 
     def is_bear_moon_zodsign(self):
-        moon_zodsign = self.moon_zodsign()
-        return self.is_earth_zodsign(moon_zodsign) or self.is_fire_zodsign(moon_zodsign)
+        if (self.hp['enable_moon_zodsign_filter']):
+            moon_zodsign = self.moon_zodsign()
+            return self.is_earth_zodsign(moon_zodsign) \
+                or self.is_fire_zodsign(moon_zodsign)
+        return True
 
     @property
     def is_bull_astro_signal(self) -> bool:
@@ -299,5 +305,6 @@ class AstroStrategyMA(Strategy):
             {'name': 'max_day_attempts', 'type': int, 'min': 1, 'max': 3, 'default': 1},
             {'name': 'astro_signal_trend_period', 'type': int, 'min': 1, 'max': 5, 'default': 2},
             {'name': 'astro_signal_shift_hour', 'type': int, 'min': 0, 'max': 23, 'default': 9},
-            {'name': 'capital_slices', 'type': int, 'min': 2, 'max': 20, 'default': 10},
+            {'name': 'capital_slices', 'type': int, 'min': 2, 'max': 20, 'default': 20},
+            {'name': 'enable_moon_zodsign_filter', 'type': bool, 'default': True},
         ]
