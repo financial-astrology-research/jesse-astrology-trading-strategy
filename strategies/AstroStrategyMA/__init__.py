@@ -214,17 +214,17 @@ class AstroStrategyMA(Strategy):
         return 'neutral'
 
     def astro_sector_signal(self):
-        index = self.astro_indicator_day_index()
+        index = self.astro_indicator_day_index()+1
         signal = self.vars['astro_sector'].iloc[index]
         return signal['Action']
 
     @property
     def is_bull_astro_signal(self) -> bool:
-        return self.astro_sector_signal() == "buy" and self.astro_asset_signal() == "buy"
+        return self.astro_sector_signal() in ['buy', 'neutral'] and self.astro_asset_signal() == "buy"
 
     @property
     def is_bear_astro_signal(self) -> bool:
-        return self.astro_sector_signal() == "sell" and self.astro_asset_signal() == "sell"
+        return self.astro_sector_signal() in ['sell', 'neutral'] and self.astro_asset_signal() == "sell"
 
     def position_size(self, entry, stop):
         max_qty = utils.size_to_qty(self.capital / self.hp['capital_slices'], entry, precision=6, fee_rate=self.fee_rate)
