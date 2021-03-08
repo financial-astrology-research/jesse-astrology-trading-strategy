@@ -199,11 +199,11 @@ class AstroStrategyMA(Strategy):
             day_index = 1
         return day_index
 
-    def astro_asset_signal(self):
+    def astro_signal_period_decision(self, astro_indicator):
         start_index = self.astro_indicator_day_index()
         # Select next N signals in order to determine that there is astro energy trend.
         end_index = start_index + self.hp['astro_signal_trend_period']
-        signals = self.vars['astro_asset'].iloc[start_index:end_index]
+        signals = astro_indicator.iloc[start_index:end_index]
         count_signals = len(signals)
         buy_signals = signals[signals['Action'] == 'buy']
         sell_signals = signals[signals['Action'] == 'sell']
@@ -215,8 +215,11 @@ class AstroStrategyMA(Strategy):
 
         return 'neutral'
 
+    def astro_asset_signal(self):
+        return self.astro_signal_period_decision(self.vars['astro_asset'])
+
     def astro_sector_signal(self):
-        index = self.astro_indicator_day_index()+1
+        index = self.astro_indicator_day_index()
         signal = self.vars['astro_sector'].iloc[index]
         return signal['Action']
 
