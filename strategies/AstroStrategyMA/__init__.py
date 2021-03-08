@@ -213,23 +213,24 @@ class AstroStrategyMA(Strategy):
         elif (count_signals == len(sell_signals)):
             return 'sell'
 
-        return 'neutral'
+        return "neutral"
 
-    def astro_asset_signal(self):
-        return self.astro_signal_period_decision(self.vars['astro_asset'])
-
+    # The astro sector signal don't reduce the asset signal errors so finally is not used.
     def astro_sector_signal(self):
         index = self.astro_indicator_day_index()
         signal = self.vars['astro_sector'].iloc[index]
         return signal['Action']
 
+    def astro_asset_signal(self):
+        return self.astro_signal_period_decision(self.vars['astro_asset'])
+
     @property
     def is_bull_astro_signal(self) -> bool:
-        return self.astro_sector_signal() in ['buy', 'neutral'] and self.astro_asset_signal() == "buy"
+        return self.astro_asset_signal() == "buy"
 
     @property
     def is_bear_astro_signal(self) -> bool:
-        return self.astro_sector_signal() in ['sell', 'neutral'] and self.astro_asset_signal() == "sell"
+        return self.astro_asset_signal() == "sell"
 
     def position_size(self, entry, stop):
         max_qty = utils.size_to_qty(self.capital / self.hp['capital_slices'], entry, precision=6, fee_rate=self.fee_rate)
@@ -251,6 +252,6 @@ class AstroStrategyMA(Strategy):
             {'name': 'slow_ma_period', 'type': int, 'min': 40, 'max': 80, 'default': 60},
             {'name': 'max_day_attempts', 'type': int, 'min': 1, 'max': 3, 'default': 1},
             {'name': 'astro_signal_trend_period', 'type': int, 'min': 1, 'max': 5, 'default': 2},
-            {'name': 'astro_signal_shift_hour', 'type': int, 'min': 0, 'max': 23, 'default': 7},
+            {'name': 'astro_signal_shift_hour', 'type': int, 'min': 0, 'max': 23, 'default': 9},
             {'name': 'capital_slices', 'type': int, 'min': 2, 'max': 20, 'default': 4},
         ]
