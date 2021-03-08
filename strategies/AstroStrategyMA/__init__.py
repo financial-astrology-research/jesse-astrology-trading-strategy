@@ -259,11 +259,11 @@ class AstroStrategyMA(Strategy):
 
     @property
     def is_bull_astro_signal(self) -> bool:
-        return self.is_moon_phase_strong_zodsign() and self.astro_asset_signal() == "buy"
+        return self.astro_asset_signal() == "buy"
 
     @property
     def is_bear_astro_signal(self) -> bool:
-        return self.is_moon_phase_strong_zodsign() and self.astro_asset_signal() == "sell"
+        return self.astro_asset_signal() == "sell"
 
     def position_size(self, entry, stop):
         max_qty = utils.size_to_qty(self.capital / self.hp['capital_slices'], entry, precision=6, fee_rate=self.fee_rate)
