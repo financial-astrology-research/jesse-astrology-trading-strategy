@@ -105,7 +105,7 @@ class AstroStrategyMA(Strategy):
         self.update_trailing_stop()
 
     def exit_on_reversal(self):
-        if (self.is_long and self.is_bear_trend_start()) or (self.is_short and self.is_bull_trend_start()):
+        if (self.is_long and self.is_bear_trend_start) or (self.is_short and self.is_bull_trend_start):
             self.liquidate()
 
     # Move the SL following the trend.
@@ -141,11 +141,13 @@ class AstroStrategyMA(Strategy):
         take_profit = self.position_price(price) + (self.daily_atr_average * self.hp['take_profit_atr_rate'])
         return take_profit
 
-    def is_bull_trend_start(self):
+    @property
+    def is_bull_trend_start(self) -> bool:
         result = utils.crossed(self.fast_ma, self.slow_ma, "above")
         return result
 
-    def is_bear_trend_start(self):
+    @property
+    def is_bear_trend_start(self) -> bool:
         result = utils.crossed(self.fast_ma, self.slow_ma, "below")
         return result
 
@@ -247,5 +249,5 @@ class AstroStrategyMA(Strategy):
             {'name': 'max_day_attempts', 'type': int, 'min': 1, 'max': 3, 'default': 1},
             {'name': 'astro_signal_trend_period', 'type': int, 'min': 1, 'max': 5, 'default': 2},
             {'name': 'astro_signal_shift_hour', 'type': int, 'min': 0, 'max': 23, 'default': 9},
-            {'name': 'capital_slices', 'type': int, 'min': 2, 'max': 20, 'default': 10},
+            {'name': 'capital_slices', 'type': int, 'min': 2, 'max': 20, 'default': 4},
         ]
