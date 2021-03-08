@@ -192,8 +192,8 @@ class AstroStrategyMA(Strategy):
 
     def astro_indicator_day_index(self):
         candle_hour = self.current_candle_hour()
-        # Use next day signal after 10 hours due the fact that astro models are train with
-        # mid price (OHLC / 4) so the price action predicted by next day could start at noon.
+        # Use next day signal after shift hour due the fact that astro models are train with
+        # mid price (OHLC / 4) so the price action predicted by next day is lagged.
         day_index = 0
         if candle_hour >= self.hp['astro_signal_shift_hour']:
             day_index = 1
@@ -251,6 +251,6 @@ class AstroStrategyMA(Strategy):
             {'name': 'slow_ma_period', 'type': int, 'min': 40, 'max': 80, 'default': 60},
             {'name': 'max_day_attempts', 'type': int, 'min': 1, 'max': 3, 'default': 1},
             {'name': 'astro_signal_trend_period', 'type': int, 'min': 1, 'max': 5, 'default': 2},
-            {'name': 'astro_signal_shift_hour', 'type': int, 'min': 0, 'max': 23, 'default': 9},
+            {'name': 'astro_signal_shift_hour', 'type': int, 'min': 0, 'max': 23, 'default': 7},
             {'name': 'capital_slices', 'type': int, 'min': 2, 'max': 20, 'default': 4},
         ]
