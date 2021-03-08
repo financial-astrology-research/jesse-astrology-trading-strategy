@@ -135,17 +135,12 @@ class AstroStrategyMA(Strategy):
     # # # # # # # # # # # # # indicators # # # # # # # # # # # # # #
     ################################################################
 
-    def position_price(self, price = -1):
-        if price == -1:
-            price = self.price
-        return price
-
-    def take_profit_short(self, price=-1):
-        take_profit = self.position_price(price) - (self.daily_atr_average * self.hp['take_profit_atr_rate'])
+    def take_profit_short(self, price):
+        take_profit = price - (self.daily_atr_average * self.hp['take_profit_atr_rate'])
         return take_profit
 
-    def take_profit_long(self, price=-1):
-        take_profit = self.position_price(price) + (self.daily_atr_average * self.hp['take_profit_atr_rate'])
+    def take_profit_long(self, price):
+        take_profit = price + (self.daily_atr_average * self.hp['take_profit_atr_rate'])
         return take_profit
 
     @property
@@ -258,8 +253,8 @@ class AstroStrategyMA(Strategy):
     def is_bull_moon_phase_zodsign(self):
         phase_zodsign = self.moon_phase_zodsign()
         return self.is_air_zodsign(phase_zodsign) \
-            or self.is_earth_zodsign(phase_zodsign) \
-            or self.is_fire_zodsign(phase_zodsign)
+               or self.is_earth_zodsign(phase_zodsign) \
+               or self.is_fire_zodsign(phase_zodsign)
 
     def moon_zodsign(self):
         index = self.astro_indicator_day_index()
@@ -268,13 +263,11 @@ class AstroStrategyMA(Strategy):
 
     def is_bull_moon_zodsign(self):
         moon_zodsign = self.moon_zodsign()
-        return self.is_air_zodsign(moon_zodsign) \
-            or self.is_water_zodsign(moon_zodsign) \
+        return self.is_air_zodsign(moon_zodsign)or self.is_water_zodsign(moon_zodsign)
 
     def is_bear_moon_zodsign(self):
         moon_zodsign = self.moon_zodsign()
-        return self.is_earth_zodsign(moon_zodsign) \
-            or self.is_fire_zodsign(moon_zodsign)
+        return self.is_earth_zodsign(moon_zodsign) or self.is_fire_zodsign(moon_zodsign)
 
     @property
     def is_bull_astro_signal(self) -> bool:
@@ -285,7 +278,8 @@ class AstroStrategyMA(Strategy):
         return self.is_bear_moon_zodsign() and self.astro_asset_signal() == 'sell'
 
     def position_size(self, entry, stop):
-        max_qty = utils.size_to_qty(self.capital / self.hp['capital_slices'], entry, precision=6, fee_rate=self.fee_rate)
+        max_qty = utils.size_to_qty(self.capital / self.hp['capital_slices'], entry, precision=6,
+                                    fee_rate=self.fee_rate)
         return max_qty
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
