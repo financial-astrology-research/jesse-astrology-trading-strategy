@@ -1,9 +1,7 @@
 from datetime import datetime
 from pathlib import Path
-from pprint import pprint
 
 import jesse.indicators as ta
-import numpy as np
 import pandas as pd
 from jesse import utils
 from jesse.strategies import Strategy
@@ -122,12 +120,12 @@ class AstroStrategyMA2(Strategy):
 
         # Only move it if we are still in a trend
         if (self.is_long and self.price > self.fast_ma[-1]):
-            stop = self.price - self.stop_atr * self.hp['trailing_stop_atr_rate']
+            stop = self.price - self.stop_atr * self.hp['stop_loss_atr_rate']
             if stop < self.price:
                 self.stop_loss = self.position.qty, stop
 
         if (self.is_short and self.price < self.fast_ma[-1]):
-            stop = self.price + self.stop_atr * self.hp['trailing_stop_atr_rate']
+            stop = self.price + self.stop_atr * self.hp['stop_loss_atr_rate']
             if stop > self.price:
                 self.stop_loss = self.position.qty, stop
 
@@ -299,14 +297,13 @@ class AstroStrategyMA2(Strategy):
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def hyperparameters(self):
         return [
-            {'name': 'entry_atr_period', 'type': int, 'min': 10, 'max': 20, 'default': 15},
+            {'name': 'entry_atr_period', 'type': int, 'min': 5, 'max': 30, 'default': 15},
             {'name': 'entry_stop_atr_rate', 'type': float, 'min': 0.1, 'max': 1.0, 'default': 0.1},
-            {'name': 'stop_atr_period', 'type': int, 'min': 10, 'max': 40, 'default': 30},
-            {'name': 'stop_loss_atr_rate', 'type': float, 'min': 1, 'max': 5, 'default': 2},
-            {'name': 'trailing_stop_atr_rate', 'type': float, 'min': 10, 'max': 20, 'default': 15},
-            {'name': 'take_profit_atr_period', 'type': int, 'min': 7, 'max': 21, 'default': 10},
+            {'name': 'stop_atr_period', 'type': int, 'min': 5, 'max': 30, 'default': 30},
+            {'name': 'stop_loss_atr_rate', 'type': int, 'min': 1, 'max': 5, 'default': 2},
+            {'name': 'take_profit_atr_period', 'type': int, 'min': 5, 'max': 30, 'default': 10},
             {'name': 'take_profit_atr_rate', 'type': int, 'min': 2, 'max': 10, 'default': 3},
-            {'name': 'slow_ma_period', 'type': int, 'min': 40, 'max': 80, 'default': 60},
+            {'name': 'slow_ma_period', 'type': int, 'min': 20, 'max': 100, 'default': 60},
             {'name': 'max_day_attempts', 'type': int, 'min': 1, 'max': 3, 'default': 1},
             {'name': 'astro_signal_trend_period', 'type': int, 'min': 1, 'max': 5, 'default': 2},
             {'name': 'astro_signal_shift_hour', 'type': int, 'min': 0, 'max': 23, 'default': 9},
