@@ -186,7 +186,9 @@ class AstroStrategyMA(Strategy):
 
     @property
     def fast_ma(self):
-        return ta.sma(self.candles, self.hp['fast_ma_period'], 'close', True)
+        # We use harmonic 1/2 minor cycle from the slow MA period.
+        fast_ma_period = self.hp['slow_ma_period'] / 2
+        return ta.sma(self.candles, fast_ma_period, 'close', True)
 
     @property
     def slow_ma(self):
@@ -302,7 +304,6 @@ class AstroStrategyMA(Strategy):
             {'name': 'trailing_stop_atr_rate', 'type': float, 'min': 10, 'max': 20, 'default': 15},
             {'name': 'take_profit_atr_period', 'type': int, 'min': 7, 'max': 21, 'default': 10},
             {'name': 'take_profit_atr_rate', 'type': int, 'min': 2, 'max': 10, 'default': 3},
-            {'name': 'fast_ma_period', 'type': int, 'min': 20, 'max': 40, 'default': 30},
             {'name': 'slow_ma_period', 'type': int, 'min': 40, 'max': 80, 'default': 60},
             {'name': 'max_day_attempts', 'type': int, 'min': 1, 'max': 3, 'default': 1},
             {'name': 'astro_signal_trend_period', 'type': int, 'min': 1, 'max': 5, 'default': 2},
