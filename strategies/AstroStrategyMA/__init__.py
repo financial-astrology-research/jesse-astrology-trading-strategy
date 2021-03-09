@@ -275,11 +275,15 @@ class AstroStrategyMA(Strategy):
 
     @property
     def is_bull_astro_signal(self) -> bool:
-        return self.is_bull_moon_zodsign() and self.astro_asset_signal() == 'buy'
+        if (self.hp['enable_astro_signal']):
+            return self.is_bull_moon_zodsign() and self.astro_asset_signal() == 'buy'
+        return True
 
     @property
     def is_bear_astro_signal(self) -> bool:
-        return self.is_bear_moon_zodsign() and self.astro_asset_signal() == 'sell'
+        if (self.hp['enable_astro_signal']):
+            return self.is_bear_moon_zodsign() and self.astro_asset_signal() == 'sell'
+        return True
 
     def position_size(self, entry, stop):
         max_qty = utils.size_to_qty(self.available_margin / self.hp['capital_slices'], entry, precision=6,
@@ -304,5 +308,6 @@ class AstroStrategyMA(Strategy):
             {'name': 'astro_signal_trend_period', 'type': int, 'min': 1, 'max': 5, 'default': 2},
             {'name': 'astro_signal_shift_hour', 'type': int, 'min': 0, 'max': 23, 'default': 9},
             {'name': 'capital_slices', 'type': int, 'min': 2, 'max': 20, 'default': 20},
+            {'name': 'enable_astro_signal', 'type': bool, 'default': True},
             {'name': 'enable_moon_zodsign_filter', 'type': bool, 'default': False},
         ]
