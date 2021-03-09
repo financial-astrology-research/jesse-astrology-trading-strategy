@@ -193,7 +193,7 @@ config = {
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     'optimization': {
         # sharpe, calmar, sortino, omega
-        'ratio': 'sharpe',
+        'ratio': 'calmar',
     },
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

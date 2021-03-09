@@ -122,12 +122,12 @@ class AstroStrategyMA(Strategy):
 
         # Only move it if we are still in a trend
         if (self.is_long and self.price > self.fast_ma[-1]):
-            stop = self.price - self.atr * self.hp['trailing_stop_atr_rate']
+            stop = self.price - self.stop_atr * self.hp['trailing_stop_atr_rate']
             if stop < self.price:
                 self.stop_loss = self.position.qty, stop
 
         if (self.is_short and self.price < self.fast_ma[-1]):
-            stop = self.price + self.atr * self.hp['trailing_stop_atr_rate']
+            stop = self.price + self.stop_atr * self.hp['trailing_stop_atr_rate']
             if stop > self.price:
                 self.stop_loss = self.position.qty, stop
 
@@ -136,11 +136,11 @@ class AstroStrategyMA(Strategy):
     ################################################################
 
     def take_profit_short(self, price):
-        take_profit = price - (self.daily_atr_average * self.hp['take_profit_atr_rate'])
+        take_profit = price - (self.take_profit_atr * self.hp['take_profit_atr_rate'])
         return take_profit
 
     def take_profit_long(self, price):
-        take_profit = price + (self.daily_atr_average * self.hp['take_profit_atr_rate'])
+        take_profit = price + (self.take_profit_atr * self.hp['take_profit_atr_rate'])
         return take_profit
 
     @property
@@ -154,8 +154,8 @@ class AstroStrategyMA(Strategy):
         return result
 
     @property
-    def atr(self):
-        return ta.atr(self.candles, period=self.hp['atr_period'])
+    def stop_atr(self):
+        return ta.atr(self.candles, period=self.hp['stop_atr_period'])
 
     @property
     def entry_atr(self):
@@ -163,14 +163,14 @@ class AstroStrategyMA(Strategy):
 
     @property
     def stop_loss_long(self):
-        exit = self.price - self.atr * self.hp['stop_loss_atr_rate']
+        exit = self.price - self.stop_atr * self.hp['stop_loss_atr_rate']
         if exit >= self.vars['entry']:
             exit = self.vars['entry'] * 0.98
         return exit
 
     @property
     def stop_loss_short(self):
-        exit = self.price + self.atr * self.hp['stop_loss_atr_rate']
+        exit = self.price + self.stop_atr * self.hp['stop_loss_atr_rate']
         if exit <= self.vars['entry']:
             exit = self.vars['entry'] * 1.02
         return exit
@@ -180,13 +180,15 @@ class AstroStrategyMA(Strategy):
         return self.get_candles(self.exchange, self.symbol, '1D')
 
     @property
-    def daily_atr_average(self):
-        daily_atr = ta.atr(self.daily_candles, self.hp['atr_take_profit_period'])
+    def take_profit_atr(self):
+        daily_atr = ta.atr(self.daily_candles, self.hp['take_profit_atr_period'])
         return daily_atr
 
     @property
     def fast_ma(self):
-        return ta.sma(self.candles, self.hp['fast_ma_period'], 'close', True)
+        # We use harmonic 1/2 minor cycle from the slow MA period.
+        fast_ma_period = self.hp['slow_ma_period'] / 2
+        return ta.sma(self.candles, fast_ma_period, 'close', True)
 
     @property
     def slow_ma(self):
@@ -275,11 +277,15 @@ class AstroStrategyMA(Strategy):
 
     @property
     def is_bull_astro_signal(self) -> bool:
-        return self.is_bull_moon_zodsign() and self.astro_asset_signal() == 'buy'
+        if (self.hp['enable_astro_signal'] == 1):
+            return self.is_bull_moon_zodsign() and self.astro_asset_signal() == 'buy'
+        return True
 
     @property
     def is_bear_astro_signal(self) -> bool:
-        return self.is_bear_moon_zodsign() and self.astro_asset_signal() == 'sell'
+        if (self.hp['enable_astro_signal'] == 1):
+            return self.is_bear_moon_zodsign() and self.astro_asset_signal() == 'sell'
+        return True
 
     def position_size(self, entry, stop):
         max_qty = utils.size_to_qty(self.available_margin / self.hp['capital_slices'], entry, precision=6,
@@ -291,18 +297,18 @@ class AstroStrategyMA(Strategy):
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def hyperparameters(self):
         return [
+            {'name': 'entry_atr_period', 'type': int, 'min': 10, 'max': 20, 'default': 15},
             {'name': 'entry_stop_atr_rate', 'type': float, 'min': 0.1, 'max': 1.0, 'default': 0.1},
+            {'name': 'stop_atr_period', 'type': int, 'min': 10, 'max': 40, 'default': 30},
+            {'name': 'stop_loss_atr_rate', 'type': float, 'min': 1, 'max': 5, 'default': 2},
             {'name': 'trailing_stop_atr_rate', 'type': float, 'min': 10, 'max': 20, 'default': 15},
-            {'name': 'stop_loss_atr_rate', 'type': float, 'min': 1, 'max': 4, 'default': 2},
+            {'name': 'take_profit_atr_period', 'type': int, 'min': 7, 'max': 21, 'default': 10},
             {'name': 'take_profit_atr_rate', 'type': int, 'min': 2, 'max': 10, 'default': 3},
-            {'name': 'atr_period', 'type': int, 'min': 5, 'max': 40, 'default': 30},
-            {'name': 'entry_atr_period', 'type': int, 'min': 5, 'max': 20, 'default': 15},
-            {'name': 'atr_take_profit_period', 'type': int, 'min': 7, 'max': 21, 'default': 10},
-            {'name': 'fast_ma_period', 'type': int, 'min': 20, 'max': 40, 'default': 30},
             {'name': 'slow_ma_period', 'type': int, 'min': 40, 'max': 80, 'default': 60},
             {'name': 'max_day_attempts', 'type': int, 'min': 1, 'max': 3, 'default': 1},
             {'name': 'astro_signal_trend_period', 'type': int, 'min': 1, 'max': 5, 'default': 2},
             {'name': 'astro_signal_shift_hour', 'type': int, 'min': 0, 'max': 23, 'default': 9},
-            {'name': 'capital_slices', 'type': int, 'min': 2, 'max': 20, 'default': 20},
-            {'name': 'enable_moon_zodsign_filter', 'type': bool, 'default': False},
+            {'name': 'capital_slices', 'type': int, 'min': 5, 'max': 10, 'default': 5},
+            {'name': 'enable_astro_signal', 'type': int, 'min': 0, 'max': 1, 'default': 1},
+            {'name': 'enable_moon_zodsign_filter', 'type': int, 'min': 0, 'max': 1, 'default': 0},
         ]
