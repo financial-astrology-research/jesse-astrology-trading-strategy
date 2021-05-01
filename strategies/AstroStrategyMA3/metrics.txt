@@ -1,0 +1,45 @@
+loading candles...
+ CANDLES              |
+----------------------+--------------------------
+ period               |   181 days (6.03 months)
+ starting-ending date | 2020-11-01 => 2021-05-01
+
+
+ exchange   | symbol   | timeframe   | strategy         | DNA
+------------+----------+-------------+------------------+---------------
+ Binance    | BTC-USDT | 15m         | AstroStrategyMA3 | _.Lr`SEVk?5qL
+
+
+Executing simulation...  [####################################]  100%
+Executed backtest simulation in:  69.18 seconds
+
+
+ METRICS                         |
+---------------------------------+----------------------------------
+ Total Closed Trades             |                               80
+ Total Net Profit                |              4,629.2464 (46.29%)
+ Starting => Finishing Balance   |              10,000 => 14,629.25
+ Total Open Trades               |                                1
+ Open PL                         |                           282.63
+ Total Paid Fees                 |                           241.67
+ Max Drawdown                    |                           -3.21%
+ Annual Return                   |                          114.46%
+ Expectancy                      |                    57.87 (0.58%)
+ Avg Win | Avg Loss              |                    177.6 | 56.03
+ Ratio Avg Win / Avg Loss        |                             3.17
+ Percent Profitable              |                              49%
+ Longs | Shorts                  |                        89% | 11%
+ Avg Holding Time                | 17 hours, 18 minutes, 48 seconds
+ Winning Trades Avg Holding Time |        1 day, 1 hour, 31 minutes
+ Losing Trades Avg Holding Time  |   9 hours, 30 minutes, 5 seconds
+ Sharpe Ratio                    |                             4.64
+ Calmar Ratio                    |                            35.66
+ Sortino Ratio                   |                             13.4
+ Omega Ratio                     |                              2.7
+ Winning Streak                  |                                5
+ Losing Streak                   |                                5
+ Largest Winning Trade           |                           783.02
+ Largest Losing Trade            |                          -189.35
+ Total Winning Trades            |                               39
+ Total Losing Trades             |                               41
+ Market Change                   |                          320.21%

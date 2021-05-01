@@ -16,7 +16,7 @@ class AstroStrategyMA3(Strategy):
     def current_candle_date(self) -> datetime:
         return datetime.fromtimestamp(self.candles[-1, 0] / 1000).replace(hour=0, minute=0, second=0, microsecond=0)
 
-    def current_candle_hour(self) -> datetime:
+    def current_candle_hour(self) -> int:
         return datetime.fromtimestamp(self.candles[-1, 0] / 1000).hour
 
     def load_astro_data(self):
