@@ -309,9 +309,9 @@ class AstroStrategyMA3(Strategy):
         kc = utils.kelly_criterion(win_rate, ratio_avg_win_loss) * 100
         if not kc or kc < 0:
             raise ValueError("Bad Kelly criterion.")
-        risk_qty = utils.risk_to_qty(self.available_margin, kc, entry, stop, self.fee_rate)
+        risk_qty = utils.risk_to_qty(self.available_margin, kc, entry, stop, fee_rate=self.fee_rate)
         # never risk more than 30%
-        max_qty = utils.size_to_qty(0.30 * self.available_margin, entry, precision=6, fee_rate=self.fee_rate)
+        max_qty = utils.size_to_qty(0.30 * self.available_margin, entry, fee_rate=self.fee_rate)
         qty = min(risk_qty, max_qty)
         return qty
 

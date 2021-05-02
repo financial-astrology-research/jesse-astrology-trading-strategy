@@ -43,3 +43,142 @@ Executed backtest simulation in:  69.18 seconds
  Total Winning Trades            |                               39
  Total Losing Trades             |                               41
  Market Change                   |                          320.21%
+
+ AstroStrategyMA3           |
+----------------------------+-----------
+ entry_atr_period           | 38
+ entry_stop_atr_rate        |  0.168354
+ stop_atr_period            | 28
+ stop_loss_atr_rate         |  4.74684
+ trailing_stop_atr_rate     | 14.4684
+ take_profit_atr_period     | 32
+ take_profit_atr_rate       |  5
+ slow_ma_period             | 62
+ max_day_attempts           |  4
+ astro_signal_trend_period  |  2
+ astro_signal_shift_hour    |  4
+ enable_astro_signal        |  1
+ enable_moon_zodsign_filter |  0
+
+
+ CANDLES              |
+----------------------+--------------------------
+ period               |   181 days (6.03 months)
+ starting-ending date | 2020-11-01 => 2021-05-01
+
+
+ exchange   | symbol   | timeframe   | strategy         | DNA
+------------+----------+-------------+------------------+---------------
+ Binance    | BTC-USDT | 15m         | AstroStrategyMA3 | <.Grc9UVV/-q0
+
+
+Executing simulation...  [####################################]  100%
+Executed backtest simulation in:  65.76 seconds
+
+
+ METRICS                         |
+---------------------------------+----------------------------------
+ Total Closed Trades             |                              127
+ Total Net Profit                |              5,571.7661 (55.72%)
+ Starting => Finishing Balance   |              10,000 => 15,571.77
+ Total Open Trades               |                                1
+ Open PL                         |                           300.99
+ Total Paid Fees                 |                            398.4
+ Max Drawdown                    |                           -4.22%
+ Annual Return                   |                          143.07%
+ Expectancy                      |                    43.87 (0.44%)
+ Avg Win | Avg Loss              |                   155.66 | 59.45
+ Ratio Avg Win / Avg Loss        |                             2.62
+ Percent Profitable              |                              48%
+ Longs | Shorts                  |                        80% | 20%
+ Avg Holding Time                |  16 hours, 9 minutes, 19 seconds
+ Winning Trades Avg Holding Time | 23 hours, 58 minutes, 42 seconds
+ Losing Trades Avg Holding Time  |  8 hours, 55 minutes, 30 seconds
+ Sharpe Ratio                    |                             4.87
+ Calmar Ratio                    |                            33.88
+ Sortino Ratio                   |                            12.47
+ Omega Ratio                     |                             2.34
+ Winning Streak                  |                               10
+ Losing Streak                   |                                7
+ Largest Winning Trade           |                           830.24
+ Largest Losing Trade            |                           -234.2
+ Total Winning Trades            |                               61
+ Total Losing Trades             |                               66
+ Market Change                   |                          320.21%
+
+ AstroStrategyMA3           |
+----------------------------+-----------
+ entry_atr_period           | 20
+ entry_stop_atr_rate        |  0.168354
+ stop_atr_period            | 26
+ stop_loss_atr_rate         |  4.74684
+ trailing_stop_atr_rate     | 15.1899
+ take_profit_atr_period     | 19
+ take_profit_atr_rate       |  7
+ slow_ma_period             | 62
+ max_day_attempts           |  3
+ astro_signal_trend_period  |  1
+ astro_signal_shift_hour    |  1
+ enable_astro_signal        |  1
+ enable_moon_zodsign_filter |  0
+
+ CANDLES              |
+----------------------+--------------------------
+ period               |   181 days (6.03 months)
+ starting-ending date | 2020-11-01 => 2021-05-01
+
+
+ exchange   | symbol   | timeframe   | strategy         | DNA
+------------+----------+-------------+------------------+---------------
+ Binance    | BTC-USDT | 15m         | AstroStrategyMA3 | :.prGS@V2)-T0
+
+
+Executing simulation...  [####################################]  100%
+Executed backtest simulation in:  71.78 seconds
+
+
+ METRICS                         |
+---------------------------------+----------------------------------
+ Total Closed Trades             |                              126
+ Total Net Profit                |               6,078.369 (60.78%)
+ Starting => Finishing Balance   |              10,000 => 16,078.37
+ Total Open Trades               |                                1
+ Open PL                         |                            310.8
+ Total Paid Fees                 |                           406.93
+ Max Drawdown                    |                           -4.67%
+ Annual Return                   |                          159.19%
+ Expectancy                      |                    48.24 (0.48%)
+ Avg Win | Avg Loss              |                   167.44 | 63.62
+ Ratio Avg Win / Avg Loss        |                             2.63
+ Percent Profitable              |                              48%
+ Longs | Shorts                  |                        79% | 21%
+ Avg Holding Time                | 15 hours, 50 minutes, 18 seconds
+ Winning Trades Avg Holding Time |    23 hours, 8 minutes, 1 second
+ Losing Trades Avg Holding Time  |  8 hours, 59 minutes, 31 seconds
+ Sharpe Ratio                    |                             4.96
+ Calmar Ratio                    |                            34.08
+ Sortino Ratio                   |                            13.07
+ Omega Ratio                     |                             2.44
+ Winning Streak                  |                               10
+ Losing Streak                   |                                7
+ Largest Winning Trade           |                           863.64
+ Largest Losing Trade            |                          -241.84
+ Total Winning Trades            |                               61
+ Total Losing Trades             |                               65
+ Market Change                   |                          320.21%
+
+ AstroStrategyMA3           |
+----------------------------+-----------
+ entry_atr_period           | 19
+ entry_stop_atr_rate        |  0.168354
+ stop_atr_period            | 46
+ stop_loss_atr_rate         |  4.74684
+ trailing_stop_atr_rate     |  8.4557
+ take_profit_atr_period     | 32
+ take_profit_atr_rate       |  4
+ slow_ma_period             | 62
+ max_day_attempts           |  2
+ astro_signal_trend_period  |  1
+ astro_signal_shift_hour    |  1
+ enable_astro_signal        |  1
+ enable_moon_zodsign_filter |  0
