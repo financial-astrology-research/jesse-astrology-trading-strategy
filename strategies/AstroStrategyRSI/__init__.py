@@ -26,7 +26,6 @@ class AstroStrategyRSI(Strategy):
         astro_asset_indicator_path = here / './ml-{}-USD-daily-index.csv'.format(symbol_parts[0])
         self.vars['astro_asset'] = pd.read_csv(astro_asset_indicator_path, parse_dates=['Date'], index_col=0)
 
-
     def before(self):
         if self.index == 0:
             self.load_astro_data()
@@ -34,7 +33,6 @@ class AstroStrategyRSI(Strategy):
         # Filter past data.
         candle_date = self.current_candle_date()
         self.vars['astro_asset'] = self.vars['astro_asset'].loc[candle_date:]
-
 
     def increase_entry_attempt(self):
         candle_date = str(datetime.fromtimestamp(self.current_candle[0] / 1000).date())
@@ -146,12 +144,18 @@ class AstroStrategyRSI(Strategy):
     @property
     @cached
     def is_bull_trend_start(self) -> bool:
-        return (self.rsi[-1] > -0.5 and self.rsi[-2] <= -0.5) or (('last_rsi_cross_long' not in self.vars or self.index - self.vars['last_rsi_cross_long'] > 20) and (self.rsi[-1] > 0.5 and self.rsi[-2] <= 0.5)) and self.fast_ma[-1] > self.slow_ma[-1]
+        return (self.rsi[-1] > -0.5 and self.rsi[-2] <= -0.5) or (
+                    ('last_rsi_cross_long' not in self.vars or self.index - self.vars['last_rsi_cross_long'] > 20) and (
+                        self.rsi[-1] > 0.5 and self.rsi[-2] <= 0.5)) and self.fast_ma[-1] > self.slow_ma[-1]
 
     @property
     @cached
     def is_bear_trend_start(self) -> bool:
-        return (self.rsi[-1] < 0.5 and self.rsi[-2] >= 0.5) or (('last_rsi_cross_short' not in self.vars or self.index - self.vars['last_rsi_cross_short'] > 20) and (self.rsi[-1] < -0.5 and self.rsi[-2] >= -0.5)) and self.fast_ma[-1] < self.slow_ma[-1]
+        return (self.rsi[-1] < 0.5 and self.rsi[-2] >= 0.5) or (('last_rsi_cross_short' not in self.vars or self.index -
+                                                                 self.vars['last_rsi_cross_short'] > 20) and (
+                                                                            self.rsi[-1] < -0.5 and self.rsi[
+                                                                        -2] >= -0.5)) and self.fast_ma[-1] < \
+               self.slow_ma[-1]
 
     @property
     @cached
@@ -187,7 +191,6 @@ class AstroStrategyRSI(Strategy):
             stop = self.vars['entry'] * 1.05
         return stop
 
-
     @property
     @cached
     def take_profit_atr(self):
@@ -196,42 +199,13 @@ class AstroStrategyRSI(Strategy):
     @property
     @cached
     def fast_ma(self):
-        if self.hp['ma_source_fast'] == 0:
-            source = "close"
-        elif self.hp['ma_source_fast'] == 1:
-            source = "high"
-        elif self.hp['ma_source_fast'] == 2:
-            source = "low"
-        elif self.hp['ma_source_fast'] == 3:
-            source = "open"
-        elif self.hp['ma_source_fast'] == 4:
-            source = "hl2"
-        elif self.hp['ma_source_fast'] == 5:
-            source = "hlc3"
-        elif self.hp['ma_source_fast'] == 6:
-            source = "ohlc4"
-
         period = int(self.hp['slow_ma_period'] / self.hp['fast_ma_devider'])
-        return ta.sma(self.candles[-240:], period = period, source_type = source, sequential=True)
+        return ta.sma(self.candles[-240:], period=period, source_type="close", sequential=True)
 
     @property
     @cached
     def slow_ma(self):
-        if self.hp['ma_source_slow'] == 0:
-          source = "close"
-        elif self.hp['ma_source_slow'] == 1:
-          source = "high"
-        elif self.hp['ma_source_slow'] == 2:
-          source = "low"
-        elif self.hp['ma_source_slow'] == 3:
-          source = "open"
-        elif self.hp['ma_source_slow'] == 4:
-          source = "hl2"
-        elif self.hp['ma_source_slow'] == 5:
-          source = "hlc3"
-        elif self.hp['ma_source_slow'] == 6:
-          source = "ohlc4"
-        return ta.sma(self.candles[-240:], period = self.hp['slow_ma_period'], source_type = source, sequential=True)
+        return ta.sma(self.candles[-240:], period=self.hp['slow_ma_period'], source_type="close", sequential=True)
 
     def astro_indicator_day_index(self):
         candle_hour = self.current_candle_hour()
@@ -258,7 +232,6 @@ class AstroStrategyRSI(Strategy):
 
         return 'neutral'
 
-
     def astro_asset_signal(self):
         return self.astro_signal_period_decision(self.vars['astro_asset'])
 
@@ -278,8 +251,7 @@ class AstroStrategyRSI(Strategy):
         risk_qty = utils.risk_to_qty(self.available_margin / 10, 30, entry, stop, fee_rate=self.fee_rate)
         # never risk more than 30%
         max_qty = utils.size_to_qty(0.30 * self.available_margin / 10, entry, fee_rate=self.fee_rate)
-        qty = min(risk_qty, max_qty)
-        return qty
+        return min(risk_qty, max_qty)
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Genetic
@@ -299,6 +271,4 @@ class AstroStrategyRSI(Strategy):
             {'name': 'enable_astro_signal', 'type': int, 'min': 0, 'max': 1, 'default': 1},
             {'name': 'slow_ma_period', 'type': int, 'min': 50, 'max': 100, 'default': 62},
             {'name': 'fast_ma_devider', 'type': float, 'min': 2, 'max': 10, 'default': 2},
-            {'name': 'ma_source_slow', 'type': int, 'min': 0, 'max': 6, 'default': 0},
-            {'name': 'ma_source_fast', 'type': int, 'min': 0, 'max': 6, 'default': 0},
         ]

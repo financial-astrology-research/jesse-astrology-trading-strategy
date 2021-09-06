@@ -1,11 +1,11 @@
 from datetime import datetime
-from pathlib import Path
-import requests
 from io import StringIO
-import numpy as np
+from pathlib import Path
 
 import jesse.indicators as ta
+import numpy as np
 import pandas as pd
+import requests
 from jesse import utils
 from jesse.strategies import Strategy, cached
 
@@ -165,14 +165,12 @@ class AstroSunStrategyMA(Strategy):
     @property
     @cached
     def is_bull_trend_start(self) -> bool:
-        result = utils.crossed(self.fast_ma, self.slow_ma, 'above')
-        return result
+        return utils.crossed(self.fast_ma, self.slow_ma, 'above')
 
     @property
     @cached
     def is_bear_trend_start(self) -> bool:
-        result = utils.crossed(self.fast_ma, self.slow_ma, 'below')
-        return result
+        return utils.crossed(self.fast_ma, self.slow_ma, 'below')
 
     @property
     @cached
@@ -201,8 +199,7 @@ class AstroSunStrategyMA(Strategy):
         return take_profit
 
     def take_profit_long(self, price):
-        take_profit = price + (self.take_profit_atr * self.hp['take_profit_atr_rate'])
-        return take_profit
+        return price + (self.take_profit_atr * self.hp['take_profit_atr_rate'])
 
     @property
     def stop_loss_long(self):
@@ -222,42 +219,13 @@ class AstroSunStrategyMA(Strategy):
     @property
     @cached
     def fast_ma(self):
-        if self.hp['ma_source_fast'] == 0:
-            source = "close"
-        elif self.hp['ma_source_fast'] == 1:
-            source = "high"
-        elif self.hp['ma_source_fast'] == 2:
-            source = "low"
-        elif self.hp['ma_source_fast'] == 3:
-            source = "open"
-        elif self.hp['ma_source_fast'] == 4:
-            source = "hl2"
-        elif self.hp['ma_source_fast'] == 5:
-            source = "hlc3"
-        elif self.hp['ma_source_fast'] == 6:
-            source = "ohlc4"
-
         period = int(self.hp['slow_ma_period'] / self.hp['fast_ma_devider'])
-        return ta.sma(self.candles[-240:], period = period, source_type = source, sequential=True)
+        return ta.sma(self.candles[-240:], period = period, source_type = "close", sequential=True)
 
     @property
     @cached
     def slow_ma(self):
-        if self.hp['ma_source_slow'] == 0:
-          source = "close"
-        elif self.hp['ma_source_slow'] == 1:
-          source = "high"
-        elif self.hp['ma_source_slow'] == 2:
-          source = "low"
-        elif self.hp['ma_source_slow'] == 3:
-          source = "open"
-        elif self.hp['ma_source_slow'] == 4:
-          source = "hl2"
-        elif self.hp['ma_source_slow'] == 5:
-          source = "hlc3"
-        elif self.hp['ma_source_slow'] == 6:
-          source = "ohlc4"
-        return ta.sma(self.candles[-240:], period = self.hp['slow_ma_period'], source_type = source, sequential=True)
+        return ta.sma(self.candles[-240:], period = self.hp['slow_ma_period'], source_type = "close", sequential=True)
 
     def astro_indicator_day_index(self):
         candle_hour = self.current_candle_hour()
@@ -304,8 +272,7 @@ class AstroSunStrategyMA(Strategy):
         risk_qty = utils.risk_to_qty(self.available_margin, 30, entry, stop, fee_rate=self.fee_rate)
         # never risk more than 30%
         max_qty = utils.size_to_qty(0.30 * self.available_margin, entry, fee_rate=self.fee_rate)
-        qty = min(risk_qty, max_qty)
-        return qty
+        return min(risk_qty, max_qty)
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Genetic
@@ -325,6 +292,4 @@ class AstroSunStrategyMA(Strategy):
             {'name': 'enable_astro_signal', 'type': int, 'min': 0, 'max': 1, 'default': 1},
             {'name': 'slow_ma_period', 'type': int, 'min': 50, 'max': 100, 'default': 62},
             {'name': 'fast_ma_devider', 'type': float, 'min': 2, 'max': 10, 'default': 2},
-            {'name': 'ma_source_slow', 'type': int, 'min': 0, 'max': 6, 'default': 0},
-            {'name': 'ma_source_fast', 'type': int, 'min': 0, 'max': 6, 'default': 0},
         ]
