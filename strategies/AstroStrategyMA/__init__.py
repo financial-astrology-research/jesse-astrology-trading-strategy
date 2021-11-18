@@ -7,7 +7,7 @@ from jesse import utils
 from jesse.strategies import Strategy, cached
 
 
-class AstroStrategyMANew(Strategy):
+class AstroStrategyMA(Strategy):
 
     def __init__(self):
         super().__init__()
